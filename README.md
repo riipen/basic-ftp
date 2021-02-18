@@ -1,5 +1,8 @@
 # Basic FTP
 
+This is a fork of [![npm version](https://img.shields.io/npm/v/basic-ftp.svg)](https://www.npmjs.com/package/basic-ftp), with changes to the useDefaultSettings() function
+to allow it to work with FTP servers used by Riipen.
+
 [![Build Status](https://travis-ci.org/patrickjuchli/basic-ftp.svg?branch=master)](https://travis-ci.org/patrickjuchli/basic-ftp) [![dependencies](https://img.shields.io/david/patrickjuchli/basic-ftp)](https://david-dm.org/patrickjuchli/basic-ftp) [![npm version](https://img.shields.io/npm/v/basic-ftp.svg)](https://www.npmjs.com/package/basic-ftp)
 
 This is an FTP client for Node.js. It supports FTPS over TLS, Passive Mode over IPv6, has a Promise-based API, and offers methods to operate on whole directories.
@@ -17,43 +20,42 @@ Node 8.0 or later is the only dependency.
 The first example will connect to an FTP server using TLS, get a directory listing, upload a file and download it as a copy. Note that the FTP protocol doesn't allow multiple requests running in parallel.
 
 ```js
-const ftp = require("basic-ftp")
+const ftp = require('basic-ftp');
 
-example()
+example();
 
 async function example() {
-    const client = new ftp.Client()
-    client.ftp.verbose = true
-    try {
-        await client.access({
-            host: "myftpserver.com",
-            user: "very",
-            password: "password",
-            secure: true
-        })
-        console.log(await client.list())
-        await client.uploadFrom("README.md", "README_FTP.md")
-        await client.downloadTo("README_COPY.md", "README_FTP.md")
-    }
-    catch(err) {
-        console.log(err)
-    }
-    client.close()
+  const client = new ftp.Client();
+  client.ftp.verbose = true;
+  try {
+    await client.access({
+      host: 'myftpserver.com',
+      user: 'very',
+      password: 'password',
+      secure: true,
+    });
+    console.log(await client.list());
+    await client.uploadFrom('README.md', 'README_FTP.md');
+    await client.downloadTo('README_COPY.md', 'README_FTP.md');
+  } catch (err) {
+    console.log(err);
+  }
+  client.close();
 }
 ```
 
 The next example deals with directories and their content. First, we make sure a remote path exists, creating all directories as necessary. Then, we make sure it's empty and upload the contents of a local directory.
 
 ```js
-await client.ensureDir("my/remote/directory")
-await client.clearWorkingDir()
-await client.uploadFromDir("my/local/directory")
+await client.ensureDir('my/remote/directory');
+await client.clearWorkingDir();
+await client.uploadFromDir('my/local/directory');
 ```
 
 If you encounter a problem, it may help to log out all communication with the FTP server.
 
 ```js
-client.ftp.verbose = true
+client.ftp.verbose = true;
 ```
 
 ## Client API
@@ -169,23 +171,23 @@ Set a callback function with `client.trackProgress` to track the progress of any
 
 ```js
 // Log progress for any transfer from now on.
-client.trackProgress(info => {
-    console.log("File", info.name)
-    console.log("Type", info.type)
-    console.log("Transferred", info.bytes)
-    console.log("Transferred Overall", info.bytesOverall)
-})
+client.trackProgress((info) => {
+  console.log('File', info.name);
+  console.log('Type', info.type);
+  console.log('Transferred', info.bytes);
+  console.log('Transferred Overall', info.bytesOverall);
+});
 
 // Transfer some data
-await client.uploadFrom(someStream, "test.txt")
-await client.uploadFrom("somefile.txt", "test2.txt")
+await client.uploadFrom(someStream, 'test.txt');
+await client.uploadFrom('somefile.txt', 'test2.txt');
 
 // Set a new callback function which also resets the overall counter
-client.trackProgress(info => console.log(info.bytesOverall))
-await client.downloadToDir("local/path", "remote/path")
+client.trackProgress((info) => console.log(info.bytesOverall));
+await client.downloadToDir('local/path', 'remote/path');
 
 // Stop logging
-client.trackProgress()
+client.trackProgress();
 ```
 
 For each transfer, the callback function will receive the filename, transfer type (`upload`, `download` or `list`) and number of bytes transferred. The function will be called at a regular interval during a transfer.
